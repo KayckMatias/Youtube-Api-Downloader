@@ -1,0 +1,13 @@
+{
+  "name": "youtube-simple-downloader-with-nodejs",
+  "version": "1.0.0",
+  "description": "A Simple Youtube Downloader :D",
+  "main": "index.js",
+  "author": "LzS",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.1",
+    "ytdl-core": "^4.11.0"
+  }
+}
