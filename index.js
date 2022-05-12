@@ -18,8 +18,10 @@ app.get('/favicon.ico', (req, res) => {
 app.get('/:id', (req, res) => {
     var idYout = req.params.id;
     console.log("Coletando informações de: " + idYout)
-    try {
-        ytdl('https://www.youtube.com/watch?v=' + idYout)
+    var urlFinal = 'https://www.youtube.com/watch?v=' + idYout;
+    if (matchYoutubeUrl(urlFinal)) {
+        console.log("Iniciando coleta de informações...")
+        ytdl(urlFinal)
             .on('info', (info) => {
                 let formats_info = Object.entries(info.formats).reduce((a, [key, value]) => {
                     mimeType = value.mimeType
@@ -41,21 +43,40 @@ app.get('/:id', (req, res) => {
                     return a;
                 }, { formats_info: {} })
                 res.json({
+                    status: "ok",
                     id: idYout,
                     name: info.videoDetails.title,
                     length: toTime(info.videoDetails.lengthSeconds),
                     channel: info.videoDetails.author.name,
                     formats: formats_info
                 })
+            })
+            .on('error', (err) => {
+                console.log(err)
+                res.json({
+                    status: 'error',
+                    reason: 'Error on get data, check id'
+                })
             });
-    } catch (error) {
-        console.log(error)
+    } else {
+        res.json({
+            status: 'error',
+            reason: 'Youtube id not found'
+        })
     }
 });
 
 app.listen(process.env.PORT || 3000, () => {
     console.log('Utilizando a porta 3000');
 });
+
+function matchYoutubeUrl(url) {
+    var p = /^(?:https?:\/\/)?(?:m\.|www\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))((\w|-){11})(?:\S+)?$/;
+    if (url.match(p)) {
+        return true;
+    }
+    return false;
+}
 
 function toTime(seconds) {
     var date = new Date(null);
